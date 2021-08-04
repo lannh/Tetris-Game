@@ -5,20 +5,29 @@ SShape::SShape()
 
 }
 
+SShape::SShape(int iniRow, int iniCol, int iniAngle)
+        :Tetromino(iniRow, iniCol, iniAngle)
+{
+    color[0] = 76;
+    color[1] = 175;
+    color[2] = 80;
+    iniShapes();
+}
+
 void SShape::iniShapes()
 {
     shapes =
-      {{{1, 0},
-        {1, 0},
-        {1, 1}},
+      {{{0, 5, 5},
+        {5, 5, 0}},
 
-       {{1, 1, 1},
-        {1, 0, 0}},
+       {{5, 0},
+        {5, 5},
+        {0, 5}},
 
-       {{1, 1},
-        {0, 1},
-        {0, 1}},
+       {{0, 5, 5},
+        {5, 5, 0}},
 
-       {{0, 0, 1},
-        {1, 1, 1}}};
+       {{5, 0},
+        {5, 5},
+        {0, 5}}};
 }

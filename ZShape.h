@@ -6,6 +6,7 @@ class ZShape : public Tetromino
 {
 public:
     ZShape();
+    ZShape(int, int, int iniAngle = 0);
 
     void iniShapes();
 };

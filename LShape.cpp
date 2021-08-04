@@ -30,6 +30,10 @@ LShape::LShape(int iniRow, int iniCol, int iniAngle)
     shapes[3].reserve(2);
     for(int i=0; i<2; ++i)
         shapes[0][i].reserve(3);*/
+
+    color[0] = 255;
+    color[1] = 87;
+    color[2] = 34;
     iniShapes();
 }
 

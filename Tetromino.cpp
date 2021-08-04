@@ -12,14 +12,14 @@ Tetromino::Tetromino()
     angle = 0;
 }
 
-Tetromino::Tetromino(int iniRow, int iniCol, char name,int iniAngle)
+Tetromino::Tetromino(int iniRow, int iniCol,int iniAngle)
 {
     row = iniRow;
     col = iniCol;
-    nameOfShape = name;
+    //nameOfShape = name;
     angle = iniAngle;
 
-    switch(nameOfShape)
+    /*switch(nameOfShape)
     {
         case 'L': iniLShapes();
                   color[0] = 255;
@@ -56,7 +56,7 @@ Tetromino::Tetromino(int iniRow, int iniCol, char name,int iniAngle)
                   color[1] = 188;
                   color[2] = 212;
                   break;
-    };
+    };*/
 }
 
 void Tetromino::move(string direction)

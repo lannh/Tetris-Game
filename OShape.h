@@ -6,6 +6,8 @@ class OShape : public Tetromino
 {
 public:
     OShape();
+    OShape(int, int, int iniAngle = 0);
+
     void iniShapes();
 };
 

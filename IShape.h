@@ -6,6 +6,8 @@ class IShape : public Tetromino
 {
 public:
     IShape();
+    IShape(int, int, int iniAngle = 0);
+
     void iniShapes();
 };
 

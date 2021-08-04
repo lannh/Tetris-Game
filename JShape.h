@@ -6,6 +6,8 @@ class JShape : public Tetromino
 {
 public:
     JShape();
+    JShape(int, int, int iniAngle = 0);
+
     void iniShapes();
 };
 

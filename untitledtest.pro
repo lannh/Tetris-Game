@@ -17,17 +17,31 @@ DEFINES += QT_DEPRECATED_WARNINGS
 #DEFINES += QT_DISABLE_DEPRECATED_BEFORE=0x060000    # disables all the APIs deprecated before Qt 6.0.0
 
 SOURCES += \
+    IShape.cpp \
+    JShape.cpp \
+    LShape.cpp \
+    OShape.cpp \
+    SShape.cpp \
+    TShape.cpp \
     TetrisGame.cpp \
     Tetromino.cpp \
     Timer.cpp \
+    ZShape.cpp \
     gameoverdialog.cpp \
     main.cpp \
     mainwindow.cpp
 
 HEADERS += \
+    IShape.h \
+    JShape.h \
+    LShape.h \
+    OShape.h \
+    SShape.h \
+    TShape.h \
     TetrisGame.h \
     Tetromino.h \
     Timer.h \
+    ZShape.h \
     gameoverdialog.h \
     mainwindow.h
 

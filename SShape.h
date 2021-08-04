@@ -6,6 +6,7 @@ class SShape : public Tetromino
 {
 public:
     SShape();
+    SShape(int, int, int iniAngle = 0);
 
     void iniShapes();
 };

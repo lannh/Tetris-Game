@@ -8,7 +8,7 @@ class Tetromino
 {
 public:
     Tetromino();
-    Tetromino(int, int, char,int iniAngle = 0);
+    Tetromino(int, int,int iniAngle = 0);
     //Tetromino(const Tetromino&);
 
     void move(std::string);
@@ -31,6 +31,8 @@ public:
     char nameOfShape;
     std::vector<std::vector<std::vector<int>>> shapes;
 
+    virtual void iniShapes() = 0 ;
+
     void iniLShapes();
     void iniJShapes();
     void iniOShapes();
@@ -39,6 +41,7 @@ public:
     void iniZShapes();
     void iniIShapes();
 
+    virtual ~ Tetromino() {};
 
 };
 

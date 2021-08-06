@@ -21,6 +21,7 @@ using namespace std;
 TetrisGame::TetrisGame(QWidget *parent) :
     QWidget(parent)
 {
+    initialState = true;
     mainParent = parent;
     score = 0;
     boardWidth = 10;
@@ -71,7 +72,8 @@ void TetrisGame::drawBoard()
 
     //scene->addText("Next Tetromino:", QFont("Times", 10, QFont::Bold))->setPos(300,100);
     scene->addRect(298, 130, blockSize*4+padding*3, blockSize*5+padding*3);
-    if(!nextTetromino->shapes.empty())
+    //if(!nextTetromino->getShape().empty())
+    if(!initialState)
     {
         int hNextTetro = nextTetromino->getHeight();
         int wNextTetro = nextTetromino->getWidth();
@@ -87,13 +89,14 @@ void TetrisGame::drawBoard()
     }
 }
 
-void TetrisGame::makeRandomTetromino(Tetromino* current)
+Tetromino* TetrisGame::makeRandomTetromino()
 {
     srand((unsigned int) time (NULL)); //activates the generator
     int randNum = (rand() % 7);
     //cout<<r<<endl;
     //const int randNum = floor(r*floor(7));
 
+    Tetromino* current;
 
     switch (randNum)
     {
@@ -118,13 +121,15 @@ void TetrisGame::makeRandomTetromino(Tetromino* current)
           default:
             current = new IShape(0, 4, 0);
      }
+    return current;
 }
 
 void TetrisGame::progress()
 {
-    Tetromino newTetromino(currentTetromino->row + 1, currentTetromino->col, currentTetromino->nameOfShape, currentTetromino->angle);
+    Tetromino* newTetromino = currentTetromino->clone();
+    newTetromino->setRow(currentTetromino->getRow()+1);
 
-    if (!bottomOverlapped(newTetromino) && !landedOverlapped(newTetromino))
+    if (!bottomOverlapped(*newTetromino) && !landedOverlapped(*newTetromino))
     {
         //qDebug()<<timer->interval();
         currentTetromino->fall();
@@ -139,12 +144,16 @@ void TetrisGame::progress()
     {
       mergeCurrentTetromino();
       updateScore();
-      *currentTetromino = *nextTetromino;
+      delete currentTetromino;
+      currentTetromino = nextTetromino;
       if(checkGameOver())
           callGameOver();
-      else makeRandomTetromino(nextTetromino);
+      else nextTetromino = makeRandomTetromino();
     }
     //currentTetromino.fall();
+
+    delete newTetromino;
+    newTetromino = nullptr;
 }
 
 void TetrisGame::updateCurrentBoard()
@@ -161,7 +170,7 @@ void TetrisGame::updateCurrentBoard()
     for (int i = 0; i < height; i++)
         for (int j = 0; j < width; j++)
             if (shape[i][j] > 0)
-                currentBoard[currentTetromino->row + i][currentTetromino->col + j] = shape[i][j];
+                currentBoard[currentTetromino->getRow() + i][currentTetromino->getCol() + j] = shape[i][j];
 }
 
 void TetrisGame::tryMoveDown()
@@ -174,8 +183,9 @@ void TetrisGame::tryMoveDown()
 
 void TetrisGame::play()
 {
-    makeRandomTetromino(currentTetromino);
-    makeRandomTetromino(nextTetromino);
+    initialState = false;
+    currentTetromino = makeRandomTetromino();
+    nextTetromino = makeRandomTetromino();
     //qDebug()<<currentTetromino->row;
 
     connect(timer,SIGNAL(timeout()),this,SLOT(tryMoveDown()));
@@ -193,23 +203,23 @@ void TetrisGame::setDrawingTools(QGraphicsScene * iniScene, QBrush & iniBrush, Q
 
 bool TetrisGame::bottomOverlapped(const Tetromino& thisTetromino)
 {
-    return (thisTetromino.row + thisTetromino.getHeight() > boardHeight);
+    return (thisTetromino.getRow() + thisTetromino.getHeight() > boardHeight);
 }
 
 bool TetrisGame::leftOverlapped(const Tetromino& thisTetromino)
 {
-    return (thisTetromino.col<0);
+    return (thisTetromino.getCol()<0);
 }
 
 bool TetrisGame::rightOverlapped(const Tetromino& thisTetromino)
 {
-    return (thisTetromino.col+thisTetromino.getWidth() > boardWidth);
+    return (thisTetromino.getCol()+thisTetromino.getWidth() > boardWidth);
 }
 
 bool TetrisGame::landedOverlapped(const Tetromino& thisTetromino)
 {
-    int row = thisTetromino.row;
-    int col = thisTetromino.col;
+    int row = thisTetromino.getRow();
+    int col = thisTetromino.getCol();
     int height = thisTetromino.getHeight();
     int width = thisTetromino.getWidth();
     auto currentShape = thisTetromino.getShape();
@@ -224,8 +234,8 @@ bool TetrisGame::landedOverlapped(const Tetromino& thisTetromino)
 }
 void TetrisGame::mergeCurrentTetromino()
 {
-    int row = currentTetromino->row;
-    int col = currentTetromino->col;
+    int row = currentTetromino->getRow();
+    int col = currentTetromino->getCol();
     int height = currentTetromino->getHeight();
     int width = currentTetromino->getWidth();
     auto currentShape = currentTetromino->getShape();
@@ -238,42 +248,56 @@ void TetrisGame::mergeCurrentTetromino()
 
 void TetrisGame::tryMoveLeft()
 {
-    Tetromino tempTetromino(currentTetromino->row, currentTetromino->col - 1, currentTetromino->nameOfShape, currentTetromino->angle);
-    if (!leftOverlapped(tempTetromino) &&
-          !landedOverlapped(tempTetromino))
+    Tetromino *tempTetromino = currentTetromino->clone();
+    tempTetromino->setCol(currentTetromino->getCol() - 1);
+
+    if (!leftOverlapped(*tempTetromino) &&
+          !landedOverlapped(*tempTetromino))
         {
-          currentTetromino->col = currentTetromino->col-1;
+          currentTetromino->setCol(currentTetromino->getCol()-1);
           updateCurrentBoard();
           drawBoard();
         }
+
+    delete tempTetromino;
+    tempTetromino = nullptr;
 }
 
 void TetrisGame::tryMoveRight()
 {
-    Tetromino tempTetromino(currentTetromino->row, currentTetromino->col + 1, currentTetromino->nameOfShape, currentTetromino->angle);
-    if (!rightOverlapped(tempTetromino) &&
-          !landedOverlapped(tempTetromino))
+    Tetromino *tempTetromino = currentTetromino->clone();
+    tempTetromino->setCol(currentTetromino->getCol() + 1);
+
+    if (!rightOverlapped(*tempTetromino) &&
+          !landedOverlapped(*tempTetromino))
         {
-          currentTetromino->col = currentTetromino->col+1;
+          currentTetromino->setCol(currentTetromino->getCol()+1);
           updateCurrentBoard();
           drawBoard();
         }
+
+    delete tempTetromino;
+    tempTetromino = nullptr;
 }
 
 void TetrisGame::tryRotating()
 {
-    Tetromino tempTetromino(currentTetromino->row+1, currentTetromino->col, currentTetromino->nameOfShape, currentTetromino->angle);
-    tempTetromino.rotate();
+    Tetromino *tempTetromino = currentTetromino->clone();
+    tempTetromino->setRow(currentTetromino->getRow()+1);
+    tempTetromino->rotate();
 
-    if (!leftOverlapped(tempTetromino) &&
-        !rightOverlapped(tempTetromino) &&
-        !bottomOverlapped(tempTetromino) &&
-        !landedOverlapped(tempTetromino))
+    if (!leftOverlapped(*tempTetromino) &&
+        !rightOverlapped(*tempTetromino) &&
+        !bottomOverlapped(*tempTetromino) &&
+        !landedOverlapped(*tempTetromino))
         {
           currentTetromino->rotate();
           updateCurrentBoard();
           drawBoard();
         }
+
+    delete tempTetromino;
+    tempTetromino = nullptr;
 }
 
 void TetrisGame::recolorBrush(int i)
@@ -373,8 +397,8 @@ bool TetrisGame::checkGameOver() const
 {
     int h = currentTetromino->getHeight();
     int w = currentTetromino->getWidth();
-    int currCol = currentTetromino->col;
-    int currRow = currentTetromino->row;
+    int currCol = currentTetromino->getCol();
+    int currRow = currentTetromino->getRow();
     auto shape = currentTetromino->getShape();
 
     for (int j = 0; j < w; j++)

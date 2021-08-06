@@ -9,7 +9,7 @@ class Tetromino
 public:
     Tetromino();
     Tetromino(int, int,int iniAngle = 0);
-    Tetromino(const Tetromino&);
+    //Tetromino(const Tetromino&);
 
     void move(std::string);
     void fall();
@@ -18,21 +18,29 @@ public:
     std::vector<std::vector<int>> getShape() const;
     int getWidth() const;
     int getHeight() const;
+    int getRow() const { return row; };
+    int getCol() const { return col; };
 
     void setRow(int newRow){ row = newRow;};
     void setCol(int newCol){col = newCol;};
+    void setAngle(int newAngle) {angle = newAngle;};
+
+    virtual void iniShapes() {};
+    virtual void setColor() = 0;
+    virtual Tetromino* clone() = 0;
 
     Tetromino& operator=(const Tetromino&);
 
-//private:
+    virtual ~ Tetromino() {};
+
+protected:
     int row, col;
     int angle;
     int color[3];
     char nameOfShape;
     std::vector<std::vector<std::vector<int>>> shapes;
 
-    virtual void iniShapes() {};
-    virtual Tetromino* clone() = 0;
+
 
     void iniLShapes();
     void iniJShapes();
@@ -41,8 +49,6 @@ public:
     void iniSShapes();
     void iniZShapes();
     void iniIShapes();
-
-    virtual ~ Tetromino() {};
 
 };
 

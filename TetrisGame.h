@@ -17,6 +17,7 @@ class TetrisGame : public QWidget
     Q_OBJECT
 
 private:
+    bool initialState;
     QWidget* mainParent;
     int score;
     int boardWidth;
@@ -45,7 +46,7 @@ public:
     void updateCurrentBoard();
     void play();
 
-    void makeRandomTetromino(Tetromino*);
+    Tetromino* makeRandomTetromino();
 
     bool bottomOverlapped(const Tetromino&);
     bool leftOverlapped(const Tetromino&);

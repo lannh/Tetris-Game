@@ -7,8 +7,11 @@ class IShape : public Tetromino
 public:
     IShape();
     IShape(int, int, int iniAngle = 0);
+    IShape(const IShape&);
 
     void iniShapes();
+    void setColor();
+    IShape* clone();
 };
 
 #endif // ISHAPE_H

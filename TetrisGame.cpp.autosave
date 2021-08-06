@@ -122,7 +122,7 @@ void TetrisGame::makeRandomTetromino(Tetromino* current)
 
 void TetrisGame::progress()
 {
-    Tetromino newTetromino(currentTetromino->row + 1, currentTetromino->col, currentTetromino->nameOfShape, currentTetromino->angle);
+    Tetromino newTetromino(currentTetromino->row + 1, currentTetromino->col, currentTetromino->angle);
 
     if (!bottomOverlapped(newTetromino) && !landedOverlapped(newTetromino))
     {

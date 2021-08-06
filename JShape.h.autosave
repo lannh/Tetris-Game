@@ -10,6 +10,7 @@ public:
     JShape(const JShape&);
 
     void iniShapes();
+    void setColor();
     JShape* clone();
 };
 

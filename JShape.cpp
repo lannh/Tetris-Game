@@ -8,9 +8,14 @@ JShape::JShape()
 JShape::JShape(int iniRow, int iniCol, int iniAngle)
         :Tetromino(iniRow, iniCol, iniAngle)
 {
-    color[0] = 63;
-    color[1] = 81;
-    color[2] = 181;
+    setColor();
+    iniShapes();
+}
+
+JShape::JShape(const JShape& otherShape)
+        :Tetromino(otherShape.row, otherShape.col, otherShape.angle)
+{
+    setColor();
     iniShapes();
 }
 
@@ -30,4 +35,16 @@ void JShape::iniShapes()
 
        {{2, 2, 2},
         {0, 0, 2}}};
+}
+
+void JShape::setColor()
+{
+    color[0] = 255;
+    color[1] = 87;
+    color[2] = 34;
+}
+
+JShape* JShape::clone()
+{
+    return new JShape(*this);
 }

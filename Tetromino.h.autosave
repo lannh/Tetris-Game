@@ -9,7 +9,7 @@ class Tetromino
 public:
     Tetromino();
     Tetromino(int, int,int iniAngle = 0);
-    Tetromino(const Tetromino&);
+    //Tetromino(const Tetromino&);
 
     void move(std::string);
     void fall();
@@ -32,6 +32,7 @@ public:
     std::vector<std::vector<std::vector<int>>> shapes;
 
     virtual void iniShapes() {};
+    virtual void setColor() = 0;
     virtual Tetromino* clone() = 0;
 
     void iniLShapes();

@@ -11,6 +11,7 @@ public:
     LShape(const LShape&);
 
     void iniShapes();
+    void setColor();
     LShape* clone();
 };
 

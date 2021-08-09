@@ -21,6 +21,7 @@ using namespace std;
 TetrisGame::TetrisGame(QWidget *parent) :
     QWidget(parent)
 {
+    srand((unsigned int) time (NULL)); //activates the generator
     initialState = true;
     mainParent = parent;
     score = 0;
@@ -91,7 +92,7 @@ void TetrisGame::drawBoard()
 
 Tetromino* TetrisGame::makeRandomTetromino()
 {
-    srand((unsigned int) time (NULL)); //activates the generator
+    //srand((unsigned int) time (NULL)); //activates the generator
     int randNum = (rand() % 7);
     //cout<<r<<endl;
     //const int randNum = floor(r*floor(7));
@@ -183,8 +184,8 @@ void TetrisGame::tryMoveDown()
 
 void TetrisGame::play()
 {
-    initialState = false;
     currentTetromino = makeRandomTetromino();
+    initialState = false;
     nextTetromino = makeRandomTetromino();
     //qDebug()<<currentTetromino->row;
 

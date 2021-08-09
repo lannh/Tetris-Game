@@ -71,6 +71,13 @@ public:
         delete nextTetromino;
         nextTetromino = nullptr;
 
+        delete mainParent;
+        mainParent = nullptr;
+        delete timer;
+        timer = nullptr;
+        delete scene;
+        scene = nullptr;
+
     };
 
 public slots:

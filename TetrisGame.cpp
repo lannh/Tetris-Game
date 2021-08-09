@@ -28,12 +28,10 @@ TetrisGame::TetrisGame(QWidget *parent) :
     boardWidth = 10;
     boardHeight = 23;
 
-    //set up the entire board
     currentBoard.resize(boardHeight);
     for(int i=0; i<boardHeight; ++i)
         currentBoard[i].resize(boardWidth);
 
-    //set up part of the board that is already occupied by the tetrominos
     landedBoard.resize(boardHeight);
     for(int i=0; i<boardHeight; ++i)
         landedBoard[i].resize(boardWidth);
@@ -68,8 +66,8 @@ void TetrisGame::drawBoard()
 
     scene->addRect(298, 130, blockSize*4+padding*3, blockSize*5+padding*3);
 
-    /*needed to be checked since at initial state
-      nextTetromino variable has not been initialized yet*/
+    /*needed to check the initial state since
+      the nextTetromino variable might have not been initialized yet*/
     if(!initialState)
     {
         //draw nextTetromino
@@ -139,7 +137,8 @@ void TetrisGame::progress()
          //this means the current Tetromino reaches its landed state
     {
       mergeCurrentTetromino();
-      //check if any row is filled with tetrominos
+      //check if any row is completely filled with color blocks
+      //(color blocks = landed tetrominos)
       //and update the score accordingly
       updateScore();
 
@@ -156,6 +155,7 @@ void TetrisGame::progress()
 }
 
 //update current board with the current state of the falling tetromino
+//and the current landed board
 void TetrisGame::updateCurrentBoard()
 {
     for (int i = 0; i < boardHeight; ++i)
@@ -338,71 +338,61 @@ void TetrisGame::recolorBrush(int i)
 
 void TetrisGame::updateScore()
 {
-    int k = -1;
-    for (int i = boardHeight-1; i >= 0; --i)
+    queue<int> q;
+    int cntLine = 1; //number of row that is completely filled with color blocks
+    int i = 0;
+
+    for(i=boardHeight-1; i>=0; --i)
     {
         int j = 0;
-        while(j<boardWidth && landedBoard[i][j]!=0)
-            ++j;
-
-        if(j==boardWidth)
+        int cntZero = 0;
+        int cntNonZero = 0;
+        //count number of white blocks and color blocks in a row
+        while(j<boardWidth)
         {
-            k = i;
+            if(landedBoard[i][j]==0)
+                ++cntZero;
+            else ++cntNonZero;
+
+            if(cntZero!=0 && cntNonZero!=0)
+                break;
+            ++j;
+         }
+
+         //if a row does not have any color boxes
+         //this means it has reached the empty part of the board
+         //therefore no need further check
+         if(cntZero==boardWidth)
             break;
-        }
+
+         //since we only need to consider and delete any row filled with color blocks
+         //any row that has both white and color blocks will be pushed into the queue
+         if(cntZero!=0 && cntNonZero!=0)
+            q.push(i);
+         else ++cntLine;
     }
 
-    if(k!=-1)
+    score+=10*cntLine;
+
+    //to delete all of the rows that are completely filled with color blocks
+    //we insert all of the rows (that are placed in the queue earlier) into the landed board
+    //starting from the bottom
+    i = boardHeight-1;
+    while(!q.empty())
     {
-        queue<int> q;
-        int cntLine = 1;
+        landedBoard[i] = landedBoard[q.front()];
+        q.pop();
+        --i;
+    }
 
-        for(int i=k-1; i>=0; --i)
-        {
-            bool hasZero = false;
-            bool hasNonZero = false;
-            int j = 0;
-            int cntZero = 0;
-            while(j<boardWidth)
-            {
-                if(landedBoard[i][j]==0)
-                {
-                    hasZero = true;
-                    ++cntZero;
-                }
-                else hasNonZero = true;
-
-                if(hasZero && hasNonZero)
-                    break;
-                ++j;
-             }
-
-             if(cntZero==boardWidth)
-                break;
-
-             if(hasZero && hasNonZero)
-                q.push(i);
-             else ++cntLine;
-        }
-
-        score+=10*cntLine;
-
-        int i=k;
-
-        while(!q.empty())
-        {
-            landedBoard[i] = landedBoard[q.front()];
-            q.pop();
-            --i;
-        }
-
-        while(cntLine>0)
-        {
-            for(int j = 0; j<boardWidth; ++j)
-                landedBoard[i][j] = 0;
-            --cntLine;
-            --i;
-        }
+    //after that, we clear out all of the rows
+    //above those rows we just inserted
+    while(cntLine>0)
+    {
+        for(int j = 0; j<boardWidth; ++j)
+            landedBoard[i][j] = 0;
+        --cntLine;
+        --i;
     }
 }
 

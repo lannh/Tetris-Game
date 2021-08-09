@@ -18,6 +18,7 @@ GameOverDialog::GameOverDialog(int iniScore, QWidget *parent) :
 GameOverDialog::~GameOverDialog()
 {
     delete ui;
+    ui = nullptr;
 }
 
 bool GameOverDialog::getIsEndGame() const

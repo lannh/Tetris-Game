@@ -22,43 +22,39 @@ TetrisGame::TetrisGame(QWidget *parent) :
     QWidget(parent)
 {
     srand((unsigned int) time (NULL)); //activates the generator
-    initialState = true;
+    initialState = true; //if the game is first opened
     mainParent = parent;
     score = 0;
     boardWidth = 10;
     boardHeight = 23;
 
+    //set up the entire board
     currentBoard.resize(boardHeight);
     for(int i=0; i<boardHeight; ++i)
         currentBoard[i].resize(boardWidth);
 
+    //set up part of the board that is already occupied by the tetrominos
     landedBoard.resize(boardHeight);
     for(int i=0; i<boardHeight; ++i)
         landedBoard[i].resize(boardWidth);
 
-    //currentTetromino = new Tetromino;
-    //nextTetromino = new Tetromino;
-
+    //set up timer
     timer = new QTimer(this);
     timer->setInterval(800);
-
-
 }
 
 void TetrisGame::drawBoard()
 {
     int blockSize = 24, padding = 4;
-    //painter.setBrush(Qt::SolidPattern);
-
-    //scene->clear();
 
     QList<QGraphicsItem*> itemsList = scene->items();
     QList<QGraphicsItem*>::iterator iter = itemsList.begin();
     QList<QGraphicsItem*>::iterator end = itemsList.end();
+    //delete entire current board
     while(iter != end)
     { QGraphicsItem* item = (*iter); scene->removeItem(item); iter++; }
 
-    //scene->addRect(100, 0, 60, 70, pen, brush);
+    //redraw entire current board
     scene->addRect(padding, padding, blockSize*boardWidth+padding*(boardWidth+1), blockSize*(boardHeight-3)+padding*(boardHeight-3+1));
 
     for (int i = 3; i < boardHeight; ++i)
@@ -68,14 +64,15 @@ void TetrisGame::drawBoard()
                 scene->addRect(padding*2+j*(blockSize+padding), padding*2+(i-3)*(blockSize+padding), blockSize, blockSize,pen, colorBrush);
             }
 
-    //scene->addText("Score:", QFont("Times", 10, QFont::Bold))->setPos(300,10);
     scene->addText(QString::number(score), QFont("Times", 25))->setPos(300,30);
 
-    //scene->addText("Next Tetromino:", QFont("Times", 10, QFont::Bold))->setPos(300,100);
     scene->addRect(298, 130, blockSize*4+padding*3, blockSize*5+padding*3);
-    //if(!nextTetromino->getShape().empty())
+
+    /*needed to be checked since at initial state
+      nextTetromino variable has not been initialized yet*/
     if(!initialState)
     {
+        //draw nextTetromino
         int hNextTetro = nextTetromino->getHeight();
         int wNextTetro = nextTetromino->getWidth();
         auto shapeNextTetro = nextTetromino->getShape();
@@ -92,10 +89,7 @@ void TetrisGame::drawBoard()
 
 Tetromino* TetrisGame::makeRandomTetromino()
 {
-    //srand((unsigned int) time (NULL)); //activates the generator
     int randNum = (rand() % 7);
-    //cout<<r<<endl;
-    //const int randNum = floor(r*floor(7));
 
     Tetromino* current;
 
@@ -129,37 +123,41 @@ void TetrisGame::progress()
 {
     Tetromino* newTetromino = currentTetromino->clone();
     newTetromino->setRow(currentTetromino->getRow()+1);
-
+    //pretending that the current tetromino can fall into the next row of the board
+    //if that fall causes no overlapped, let the current tetromino fall
     if (!bottomOverlapped(*newTetromino) && !landedOverlapped(*newTetromino))
     {
-        //qDebug()<<timer->interval();
         currentTetromino->fall();
-
+        //in the case that the board has nearly been filled up to the top
+        //check if that fall cause gameover state
         if(checkGameOver())
             callGameOver();
-
-    }
+    } //if that fall causes overlapped, check if current state is already a gameover state
     else if(checkGameOver())
         callGameOver();
-    else
+    else //if that fall causes overlapped,
+         //this means the current Tetromino reaches its landed state
     {
       mergeCurrentTetromino();
+      //check if any row is filled with tetrominos
+      //and update the score accordingly
       updateScore();
+
       delete currentTetromino;
       currentTetromino = nextTetromino;
+
       if(checkGameOver())
           callGameOver();
       else nextTetromino = makeRandomTetromino();
     }
-    //currentTetromino.fall();
 
     delete newTetromino;
     newTetromino = nullptr;
 }
 
+//update current board with the current state of the falling tetromino
 void TetrisGame::updateCurrentBoard()
 {
-
     for (int i = 0; i < boardHeight; ++i)
         for (int j = 0; j < boardWidth; ++j)
             currentBoard[i][j] = landedBoard[i][j];
@@ -184,15 +182,12 @@ void TetrisGame::tryMoveDown()
 
 void TetrisGame::play()
 {
-    currentTetromino = makeRandomTetromino();
     initialState = false;
+    currentTetromino = makeRandomTetromino();
     nextTetromino = makeRandomTetromino();
-    //qDebug()<<currentTetromino->row;
 
     connect(timer,SIGNAL(timeout()),this,SLOT(tryMoveDown()));
     timer->start(800);
-    //qDebug()<<"playy";
-
 }
 
 void TetrisGame::setDrawingTools(QGraphicsScene * iniScene, QBrush & iniBrush, QPen & iniPen)
@@ -202,21 +197,25 @@ void TetrisGame::setDrawingTools(QGraphicsScene * iniScene, QBrush & iniBrush, Q
     pen = iniPen;
 }
 
+//check if a tetromino reaches the bottom of the board
 bool TetrisGame::bottomOverlapped(const Tetromino& thisTetromino)
 {
     return (thisTetromino.getRow() + thisTetromino.getHeight() > boardHeight);
 }
 
+//check if a tetromino reaches the left edge of the board
 bool TetrisGame::leftOverlapped(const Tetromino& thisTetromino)
 {
     return (thisTetromino.getCol()<0);
 }
 
+//check if a tetromino reaches the right edge of the board
 bool TetrisGame::rightOverlapped(const Tetromino& thisTetromino)
 {
     return (thisTetromino.getCol()+thisTetromino.getWidth() > boardWidth);
 }
 
+//check if a tetromino reaches those of landed tetrominos
 bool TetrisGame::landedOverlapped(const Tetromino& thisTetromino)
 {
     int row = thisTetromino.getRow();
@@ -233,6 +232,9 @@ bool TetrisGame::landedOverlapped(const Tetromino& thisTetromino)
 
     return false;
 }
+
+//in the case that the current tetromino reaches its landed state
+//merge the current tetromino with the landed board
 void TetrisGame::mergeCurrentTetromino()
 {
     int row = currentTetromino->getRow();
@@ -252,6 +254,9 @@ void TetrisGame::tryMoveLeft()
     Tetromino *tempTetromino = currentTetromino->clone();
     tempTetromino->setCol(currentTetromino->getCol() - 1);
 
+    //pretending that the current tetromino could move left
+    //if that left movement causes no overlapped, let it move
+    //else does nothing
     if (!leftOverlapped(*tempTetromino) &&
           !landedOverlapped(*tempTetromino))
         {
@@ -269,6 +274,9 @@ void TetrisGame::tryMoveRight()
     Tetromino *tempTetromino = currentTetromino->clone();
     tempTetromino->setCol(currentTetromino->getCol() + 1);
 
+    //pretending that the current tetromino could move right
+    //if that right movement causes no overlapped, let it move
+    //else does nothing
     if (!rightOverlapped(*tempTetromino) &&
           !landedOverlapped(*tempTetromino))
         {
@@ -287,6 +295,9 @@ void TetrisGame::tryRotating()
     tempTetromino->setRow(currentTetromino->getRow()+1);
     tempTetromino->rotate();
 
+    //pretending that the current tetromino could move rotate
+    //if that rotation causes no overlapped, let it rotate
+    //else does nothing
     if (!leftOverlapped(*tempTetromino) &&
         !rightOverlapped(*tempTetromino) &&
         !bottomOverlapped(*tempTetromino) &&
@@ -301,6 +312,7 @@ void TetrisGame::tryRotating()
     tempTetromino = nullptr;
 }
 
+//set different color for different types of tetrominos
 void TetrisGame::recolorBrush(int i)
 {
     switch(i)
@@ -363,14 +375,14 @@ void TetrisGame::updateScore()
                 if(hasZero && hasNonZero)
                     break;
                 ++j;
-            }
+             }
 
-            if(cntZero==boardWidth)
+             if(cntZero==boardWidth)
                 break;
 
-            if(hasZero && hasNonZero)
+             if(hasZero && hasNonZero)
                 q.push(i);
-            else ++cntLine;
+             else ++cntLine;
         }
 
         score+=10*cntLine;
@@ -441,7 +453,6 @@ void TetrisGame::callGameOver()
         resetGame();
     else
         mainParent->close();
-
 }
 
 void TetrisGame::pauseGame()

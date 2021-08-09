@@ -29,31 +29,19 @@ MainWindow::MainWindow(QWidget *parent)
     graphicsView->setScene(scene);
     graphicsView->show();
 
-        QBrush colorBrush(Qt::black);
-        QPen outlinePen(Qt::black);
-        outlinePen.setWidth(2);
+    QBrush colorBrush(Qt::black);
+    QPen outlinePen(Qt::black);
+    outlinePen.setWidth(2);
 
-
-        //rectangle = scene->addRect(100, 0, 50, 50, outlinePen, blueBrush);
-
-        //ellipse = scene->addEllipse(0, -100, 300, 60, outlinePen, greenBrush);
-
-        //text = scene->addText("bogotobogo.com", QFont("Arial", 20) );
     T->setDrawingTools(scene,colorBrush,outlinePen);
 
-
-    scoreLabel = new QLabel("Score:",this);
+    scoreLabel = new QLabel("Score: ",this);
     scoreLabel->setFont(QFont("Times", 10, QFont::Bold));
     scoreLabel->move(300,10);
 
     nextTetroLabel = new QLabel("Next Tetromino:",this);
     nextTetroLabel->setFont(QFont("Times", 10, QFont::Bold));
     nextTetroLabel->move(300,100);
-
-    /*
-    pauseLabel = new QLabel("Pause Game",this);
-    pauseLabel->setFont(QFont("Times", 10, QFont::Bold));
-    pauseLabel->move(315,300);*/
 
     pauseButton = new QPushButton(this);
     pauseButton->setObjectName("pauseButton");
@@ -76,16 +64,7 @@ MainWindow::MainWindow(QWidget *parent)
     pauseButton->setFocusPolicy(Qt::NoFocus);
     connect(pauseButton, SIGNAL (clicked()), this, SLOT (pauseGame()));
 
-
-    /*
-    resumeLabel = new QLabel("Resume Game",this);
-    resumeLabel->setFont(QFont("Times", 10, QFont::Bold));
-    resumeLabel->move(315,300);
-    resumeLabel->setVisible(false);
-    */
-
     resumeButton = new QPushButton(this);
-    //resumeButton->setStyleSheet("border-image:url(E:/personal code projects/untitledtest/button.png); color: #eeff93");
     resumeButton->setObjectName("resumeButton");
     resumeButton->setStyleSheet(
         "   QPushButton#resumeButton {"
@@ -107,7 +86,6 @@ MainWindow::MainWindow(QWidget *parent)
     connect(resumeButton, SIGNAL (clicked()), this, SLOT (resumeGame()));
 
     newGameButton = new QPushButton(this);
-    //newGameButton->setStyleSheet("border-image:url(E:/personal code projects/untitledtest/button.png); color: #eeff93");
     newGameButton->setObjectName("newGameButton");
     newGameButton->setStyleSheet(
         "   QPushButton#newGameButton {"
@@ -131,24 +109,8 @@ MainWindow::MainWindow(QWidget *parent)
     onPlaying = false;
 }
 
-
-MainWindow::~MainWindow()
-{
-    delete ui;
-    delete graphicsView;
-    delete scene;
-    delete T;
-    delete scoreLabel;
-    delete nextTetroLabel;
-    delete pauseButton;
-    delete resumeButton;
-    delete newGameButton;
-}
-
-
 bool MainWindow::eventFilter(QObject *target, QEvent * event)
 {
-    //qDebug()<<"filtering";
     if(event->type()==QEvent::KeyPress && onPlaying)
     {
         QKeyEvent *kEvent = static_cast<QKeyEvent*>(event);
@@ -189,7 +151,6 @@ void MainWindow::resumeGame()
 
 void MainWindow::newGame()
 {
-    //iniState = false;
     resumeButton->setVisible(false);
     pauseButton->setVisible(true);
     onPlaying = true;
@@ -202,16 +163,28 @@ void MainWindow::newGame()
     else
     {
         T->stopTheClock();
-        qDebug()<<"reset";
         T->resetGame();
     }
 }
 
-/*void MainWindow::paintEvent(QPaintEvent *event)
+MainWindow::~MainWindow()
 {
-
-    QPainter painter(this);
-    //painter.setBrush(Qt::SolidPattern);
-    QPen pen;
-    T.drawBoard(painter,pen);
-}*/
+    delete ui;
+    ui = nullptr;
+    delete graphicsView;
+    graphicsView = nullptr;
+    delete scene;
+    scene = nullptr;
+    delete T;
+    T = nullptr;
+    delete scoreLabel;
+    scoreLabel = nullptr;
+    delete nextTetroLabel;
+    nextTetroLabel = nullptr;
+    delete pauseButton;
+    pauseButton = nullptr;
+    delete resumeButton;
+    resumeButton = nullptr;
+    delete newGameButton;
+    newGameButton = nullptr;
+}
